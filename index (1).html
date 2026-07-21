@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Medicine Dispenser</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1><span data-i18n="app.title">💊 Medicine Dispenser</span></h1>
+      <div class="subtitle"><span data-i18n="app.subtitle">Smart medication management system</span></div>
+      <div class="lang-toggle">
+        <button id="langToggleBtn" class="btn btn-primary" onclick="toggleLanguage()" title="Switch language">العربية</button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showTab('dashboard')"><span data-i18n="tabs.dashboard">📊 Dashboard</span></button>
+      <button class="nav-tab" onclick="showTab('schedule')"><span data-i18n="tabs.schedule">⏰ Schedule</span></button>
+      <button class="nav-tab" onclick="showTab('medicine')"><span data-i18n="tabs.medicine">💊 Medicine</span></button>
+      <button class="nav-tab" onclick="showTab('manual')"><span data-i18n="tabs.manual">🎮 Manual</span></button>
+      <button class="nav-tab" onclick="showTab('settings')"><span data-i18n="tabs.settings">⚙️ Settings</span></button>
+    </div>
+
+    <!-- Dashboard Tab -->
+    <div id="dashboard" class="tab-content active">
+      <!-- Status Overview -->
+      <div class="card">
+        <h2 class="card-title"><span data-i18n="dashboard.systemStatusTitle">System Status</span></h2>
+        <div class="status-grid">
+          <div class="status-item">
+            <div class="status-label"><span data-i18n="dashboard.currentTimeLabel">Current Time</span></div>
+            <div class="status-value" id="currentTime">--:--</div>
+          </div>
+          <div class="status-item">
+            <div class="status-label"><span data-i18n="dashboard.drum1PositionLabel">Drum 1 Position</span></div>
+            <div class="status-value" id="drum1Status">--</div>
+          </div>
+          <div class="status-item">
+            <div class="status-label"><span data-i18n="dashboard.drum2PositionLabel">Drum 2 Position</span></div>
+            <div class="status-value" id="drum2Status">--</div>
+          </div>
+          <div class="status-item">
+            <div class="status-label"><span data-i18n="dashboard.wifiConnectionLabel">WiFi Connection</span></div>
+            <div class="status-value" id="wifiStatus">--</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Last Action -->
+      <div class="card">
+        <h2 class="card-title"><span data-i18n="dashboard.recentActivityTitle">Recent Activity</span></h2>
+        <div id="lastActionStatus" class="last-action status-default"><span data-i18n="dashboard.recentActivityLoading">Loading recent activity...</span></div>
+      </div>
+
+      <!-- Dispenser Status -->
+      <div class="card">
+        <h2 class="card-title"><span data-i18n="dashboard.dispenserStatusTitle">Dispenser Status</span></h2>
+        <div id="dispenserStatus">
+          <div class="dispenser-status-loading"><span data-i18n="dashboard.dispenserStatusLoading">Loading dispenser status...</span></div>
+        </div>
+      </div>
+
+      <!-- Upcoming Schedules -->
+      <div class="card">
+        <h2 class="card-title"><span data-i18n="dashboard.upcomingSchedulesTitle">Upcoming Schedules</span></h2>
+        <div id="upcomingSchedules">
+            <div class="empty-list"><span data-i18n="dashboard.upcomingSchedulesEmpty">No upcoming schedules found.</span></div>
+          </div>
+      </div>
+
+      <!-- System Logs -->
+      <div class="card">
+        <div class="logs-container">
+          <div class="logs-header">
+            <h3 class="logs-title"><span data-i18n="dashboard.systemLogsTitle">System Logs</span></h3>
+            <a href="/history.html" target="_blank" class="view-history-link"><span data-i18n="dashboard.viewFullHistory">📋 View Full History</span></a>
+          </div>
+          <pre id="logs"><span data-i18n="dashboard.systemLogsLoading">Loading system logs...</span></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Schedule Tab -->
+    <div id="schedule" class="tab-content">
+      <div class="card">
+        <h2 class="card-title"><span data-i18n="schedule.addNew">Add New Schedule</span></h2>
+        <p class="text-muted-description"><span data-i18n="schedule.explain">Schedule when medications should be dispensed automatically.</span></p>
+        <div id="scheduleGuardNotice" style="display: none; margin: 1rem 0; padding: 1rem; background: rgba(220, 53, 69, 0.08); border-radius: 10px; border-left: 4px solid #dc3545; color: #b02a37;">
+          <span data-i18n="schedule.guardNotice">❗ Action Required: No medicines are configured yet. Please add medicines in the Medicine tab before creating schedules.</span>
+        </div>
+        
+        <div class="form-section">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label"><span data-i18n="schedule.datetime">📅 Date & Time</span></label>
+              <input type="datetime-local" id="scheduleDateTime" title="Select when to dispense medication">
+            </div>
+            <div class="form-group">
+              <label class="form-label"><span data-i18n="schedule.medicine">💊 Medicine</span></label>
+              <select id="scheduleMedicine" title="Select the configured medicine to schedule">
+                <option value="" data-i18n="common.selectMedicine">Select a medicine</option>
+              </select>
+            </div>
+          </div>
+          <button id="addScheduleBtn" class="btn btn-primary full-width" onclick="addSchedule()">
+            ➕ <span data-i18n="schedule.addButton">Add Schedule</span>
+          </button>
+        </div>
+
+        <!-- Existing Schedules List -->
+        <div class="list-container">
+          <div class="list-header"><span data-i18n="schedule.current">📅 Current Schedules</span></div>
+          <div class="list-content" id="schedulesList">
+            <div class="empty-list"><span data-i18n="schedule.emptyList">No schedules added yet.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Medicine Management Tab -->
+    <div id="medicine" class="tab-content">
+      <!-- Drum 1 Section -->
+      <div class="card">
+        <h2 class="card-title"><span data-i18n="medicine.drum1.title">Drum 1 Configuration</span></h2>
+        <div class="list-container" style="margin-bottom: 1.5rem;">
+            <div class="list-header"><span data-i18n="medicine.listHeaderDrum1">Configured Medicines in Drum 1</span></div>
+            <div class="list-content" id="medicinesList1">
+                <div class="empty-list"><span data-i18n="medicine.emptyDrum1">Drum 1 is empty.</span></div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-group">
+                <label class="form-label"><span data-i18n="medicine.addNewDrum1">Add New Medicines to Drum 1</span></label>
+                <p id="drum1Capacity" style="color: #666; font-size: 0.9rem; margin: 0 0 0.5rem 0;" data-i18n="medicine.slotsAvailable">(7 slots available)</p>
+                <input type="number" id="addMedCount1" class="form-control count-input" min="1" max="7" oninput="generateMedicineInputs(1, this.value)" placeholder="Number of new medicines to add" title="Enter how many new medicines to add to Drum 1" data-i18n-placeholder="medicine.addCountPlaceholder">
+            </div>
+            <div id="newMedicinesContainer1" class="form-grid" style="margin-top: 1rem;">
+                <!-- Dynamic input fields will be injected here -->
+            </div>
+            <button class="btn btn-success full-width margin-top-1" onclick="saveMedicines(1)">
+                <span data-i18n="medicine.saveToDrum1">💾 Save to Drum 1</span>
+            </button>
+        </div>
+      </div>
+
+      <!-- Drum 2 Section -->
+      <div class="card">
+        <h2 class="card-title"><span data-i18n="medicine.drum2.title">Drum 2 Configuration</span></h2>
+        <div class="list-container" style="margin-bottom: 1.5rem;">
+            <div class="list-header"><span data-i18n="medicine.listHeaderDrum2">Configured Medicines in Drum 2</span></div>
+            <div class="list-content" id="medicinesList2">
+                <div class="empty-list"><span data-i18n="medicine.emptyDrum2">Drum 2 is empty.</span></div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="form-group">
+                <label class="form-label"><span data-i18n="medicine.addNewDrum2">Add New Medicines to Drum 2</span></label>
+                <p id="drum2Capacity" style="color: #666; font-size: 0.9rem; margin: 0 0 0.5rem 0;" data-i18n="medicine.slotsAvailable">(7 slots available)</p>
+                <input type="number" id="addMedCount2" class="form-control count-input" min="1" max="7" oninput="generateMedicineInputs(2, this.value)" placeholder="Number of new medicines to add" title="Enter how many new medicines to add to Drum 2" data-i18n-placeholder="medicine.addCountPlaceholder">
+            </div>
+            <div id="newMedicinesContainer2" class="form-grid" style="margin-top: 1rem;">
+                <!-- Dynamic input fields will be injected here -->
+            </div>
+            <button class="btn btn-success full-width margin-top-1" onclick="saveMedicines(2)">
+                <span data-i18n="medicine.saveToDrum2">💾 Save to Drum 2</span>
+            </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manual Control Tab -->
+    <div id="manual" class="tab-content">
+      <div class="card">
+        <h2 class="card-title"><span data-i18n="manual.title">Manual Dispense Control</span></h2>
+        <p style="color: #666; margin-bottom: 1.5rem;"><span data-i18n="manual.explain">Manually dispense medications from either drum for testing or immediate needs.</span></p>
+        
+        <!-- Dispenser Status for Manual Tab -->
+            <div id="manualDispenserStatus" class="dispenser-status-loading">
+              <span data-i18n="dashboard.dispenserStatusLoading">Loading dispenser status...</span>
+            </div>
+        
+        <div class="form-section">
+          <div class="btn-grid">
+            <button class="btn btn-warning" onclick="manualDispense(1)">
+              <span data-i18n="manual.dispenseDrum1">🥁 Dispense from Drum 1</span>
+            </button>
+            <button class="btn btn-danger" onclick="manualDispense(2)">
+              <span data-i18n="manual.dispenseDrum2">🥁 Dispense from Drum 2</span>
+            </button>
+          </div>
+          <div style="margin-top: 1rem; padding: 1rem; background: rgba(255, 193, 7, 0.1); border-radius: 10px; border-left: 4px solid #ffc107;">
+            <strong><span data-i18n="manual.safetyLabel">⚠️ Safety Notice:</span></strong> <span data-i18n="manual.safetyText">Manual dispensing should only be used for testing or emergency situations. Always verify the correct medication before dispensing.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div id="settings" class="tab-content">
+      <!-- Dispenser Status for Schedule Tab -->
+          <div class="card">
+            <h2 class="card-title">📊 <span data-i18n="dashboard.dispenserStatusTitle">Dispenser Status</span></h2>
+            <div id="scheduleDispenserStatus" class="dispenser-status-loading">
+              <span data-i18n="dashboard.dispenserStatusLoading">Loading dispenser status...</span>
+            </div>
+          </div>
+
+      <div class="card">
+        <h2 class="card-title"><span data-i18n="settings.drum1.title">Drum 1 Schedule</span></h2>
+        <div class="form-section">
+          <div class="form-group">
+            <label class="form-label"><span data-i18n="settings.frequency">Schedule Frequency</span></label>
+            <select id="scheduleFrequency1" class="form-control" title="Select how often Drum 1 should dispense">
+              <option value="once" data-i18n="settings.onceOption">Once a day</option>
+              <option value="twice" data-i18n="settings.twiceOption">Twice a day</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="onceADayOptions1">
+          <div class="form-section">
+            <p style="color: #666; margin-bottom: 1.5rem;"><span data-i18n="settings.onceExplain">Set the time for the daily dispense.</span></p>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label"><span data-i18n="settings.dispenseTime">Dispense Time</span></label>
+                <input type="time" id="onceDailyTime1" class="form-control" title="Set the time for Drum 1 daily dispense">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="twiceADayOptions1" style="display: none;">
+          <div class="form-section">
+            <p style="color: #666; margin-bottom: 1.5rem;"><span data-i18n="settings.twiceExplain">Set the two times for the daily dispenses.</span></p>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label"><span data-i18n="settings.firstDispense">First Dispense Time</span></label>
+                <input type="time" id="twiceDailyTime1_1" class="form-control" title="Set the first time for Drum 1 daily dispense">
+              </div>
+              <div class="form-group">
+                <label class="form-label"><span data-i18n="settings.secondDispense">Second Dispense Time</span></label>
+                <input type="time" id="twiceDailyTime1_2" class="form-control" title="Set the second time for Drum 1 daily dispense">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="card-title"><span data-i18n="settings.drum2.title">Drum 2 Schedule</span></h2>
+        <div class="form-section">
+          <div class="form-group">
+            <label class="form-label"><span data-i18n="settings.frequency">Schedule Frequency</span></label>
+            <select id="scheduleFrequency2" class="form-control" title="Select how often Drum 2 should dispense">
+              <option value="once" data-i18n="settings.onceOption">Once a day</option>
+              <option value="twice" data-i18n="settings.twiceOption">Twice a day</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="onceADayOptions2">
+          <div class="form-section">
+            <p style="color: #666; margin-bottom: 1.5rem;"><span data-i18n="settings.onceExplain">Set the time for the daily dispense.</span></p>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label"><span data-i18n="settings.dispenseTime">Dispense Time</span></label>
+                <input type="time" id="onceDailyTime2" class="form-control" title="Set the time for Drum 2 daily dispense">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="twiceADayOptions2" style="display: none;">
+          <div class="form-section">
+            <p style="color: #666; margin-bottom: 1.5rem;"><span data-i18n="settings.twiceExplain">Set the two times for the daily dispenses.</span></p>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label"><span data-i18n="settings.firstDispense">First Dispense Time</span></label>
+                <input type="time" id="twiceDailyTime2_1" class="form-control" title="Set the first time for Drum 2 daily dispense">
+              </div>
+              <div class="form-group">
+                <label class="form-label"><span data-i18n="settings.secondDispense">Second Dispense Time</span></label>
+                <input type="time" id="twiceDailyTime2_2" class="form-control" title="Set the second time for Drum 2 daily dispense">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="form-section">
+          <button class="btn btn-primary full-width" onclick="saveSchedules()">
+            <span data-i18n="settings.saveBtn">💾 Save Schedules & Logically Reset Drums</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./script.js"></script>
+</body>
+</html>

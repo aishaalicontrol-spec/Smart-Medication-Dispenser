@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Medicine Dispenser - History</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./style.css">
+  <style>
+    /* Use main application styles with history-specific adjustments */
+    .container {
+      max-width: 1000px; /* Slightly wider for history table */
+    }
+
+    .back-button {
+      position: absolute;
+      right: 1.5rem;
+      top: 1.5rem;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      padding: 0.8rem 1.2rem;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+
+    .back-button:hover {
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      transform: translateY(-2px);
+    }
+
+    /* RTL adjustments */
+    body.rtl .back-button {
+      right: auto;
+      left: 1.5rem;
+    }
+
+    #langToggleBtn {
+      position: absolute;
+      top: 1.5rem;
+      left: 1.5rem;
+      background: linear-gradient(135deg, #28a745, #20c997);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      width: auto;
+      min-width: 80px;
+      max-width: 120px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      z-index: 10;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+    }
+
+    #langToggleBtn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+    }
+
+    body.rtl #langToggleBtn {
+      left: auto;
+      right: 1.5rem;
+    }
+
+    /* --- Filter Section --- */
+    .filters {
+      background: rgba(255, 255, 255, 0.95);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+
+    .filter-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #1c3d5a;
+      margin: 0 0 1rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .filter-title::before {
+      content: '';
+      width: 4px;
+      height: 1.5rem;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 2px;
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .filter-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #555;
+    }
+
+    .filter-buttons {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.95);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #333;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .filter-btn.active {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .filter-btn:hover:not(.active) {
+      background: rgba(248, 249, 255, 0.95);
+      border-color: rgba(102, 126, 234, 0.3);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    input[type="date"] {
+      padding: 0.8rem;
+      font-size: 0.9rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      background: white;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    input[type="date"]:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* --- Statistics Cards --- */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.95);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      border-color: rgba(102, 126, 234, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-taken .stat-number { color: #28a745; }
+    .stat-missed .stat-number { color: #dc3545; }
+    .stat-dispensed .stat-number { color: #007bff; }
+    .stat-total .stat-number { color: #6c757d; }
+
+    /* --- History Table --- */
+    .history-section {
+      background: rgba(255, 255, 255, 0.95);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      overflow: hidden;
+    }
+
+    .history-header {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .history-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .export-btn {
+      background: linear-gradient(135deg, #28a745, #20c997);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+
+    .export-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
+
+    .table-container {
+      max-height: 600px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(102, 126, 234, 0.3) transparent;
+    }
+
+    .table-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .table-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .table-container::-webkit-scrollbar-thumb {
+      background: rgba(102, 126, 234, 0.3);
+      border-radius: 3px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb:hover {
+      background: rgba(102, 126, 234, 0.5);
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    .history-table th {
+      background: rgba(248, 249, 250, 0.8);
+      padding: 1rem;
+      text-align: left;
+      font-weight: 700;
+      color: #1c3d5a;
+      border-bottom: 2px solid rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+    }
+
+    /* RTL table alignment */
+    body.rtl .history-table th,
+    body.rtl .history-table td {
+      text-align: right;
+    }
+
+    .history-table td {
+      padding: 1rem;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      transition: background 0.2s ease;
+    }
+
+    .history-table tbody tr:hover {
+      background: rgba(102, 126, 234, 0.05);
+    }
+
+    .history-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* --- Event Status Badges --- */
+    .event-badge {
+      padding: 0.4rem 0.8rem;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .event-taken {
+      background: linear-gradient(135deg, #d4edda, #c3e6cb);
+      color: #155724;
+      border: 1px solid #28a745;
+    }
+
+    .event-missed {
+      background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+      color: #721c24;
+      border: 1px solid #dc3545;
+    }
+
+    .event-dispensed {
+      background: linear-gradient(135deg, #cce5ff, #b8daff);
+      color: #004085;
+      border: 1px solid #007bff;
+    }
+
+    .event-other {
+      background: linear-gradient(135deg, #e9ecef, #dee2e6);
+      color: #495057;
+      border: 1px solid #6c757d;
+    }
+
+    /* --- Loading & Empty States --- */
+    .loading-state, .empty-state {
+      padding: 3rem;
+      text-align: center;
+      color: #666;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(102, 126, 234, 0.2);
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* --- Mobile Responsiveness --- */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0.5rem;
+      }
+
+      .header {
+        padding: 1rem;
+      }
+
+      .back-button {
+        position: static;
+        transform: none;
+        margin-bottom: 1rem;
+        align-self: flex-start;
+      }
+
+      .header {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      .filter-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .history-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+      }
+
+      .history-table {
+        font-size: 0.8rem;
+      }
+
+      .history-table th,
+      .history-table td {
+        padding: 0.5rem;
+      }
+
+      /* Hide less important columns on mobile */
+      .history-table .hide-mobile {
+        display: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .filter-buttons {
+        justify-content: center;
+      }
+
+      .filter-btn {
+        flex: 1;
+        min-width: 80px;
+      }
+    }
+
+    /* Utility classes for common inline styles */
+    .icon-large {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .text-muted {
+      font-size: 0.9rem;
+      color: #999;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <a href="index.html" class="back-button">
+        <span>←</span>
+        <span data-i18n="history.backToMain">Back to Main</span>
+      </a>
+      <button id="langToggleBtn" onclick="toggleLanguage()" title="Switch language">العربية</button>
+      <h1><span data-i18n="history.title">📋 Medicine History</span></h1>
+      <div class="subtitle"><span data-i18n="history.subtitle">Complete medication dispensing history</span></div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <h2 class="filter-title"><span data-i18n="history.filters.title">Filters & Options</span></h2>
+      
+      <div class="filter-grid">
+        <div class="filter-group">
+          <label class="filter-label"><span data-i18n="history.filters.timePeriod">📅 Time Period</span></label>
+          <div class="filter-buttons">
+            <button class="filter-btn active" onclick="setTimeFilter('all')"><span data-i18n="history.filters.buttons.allTime">All Time</span></button>
+            <button class="filter-btn" onclick="setTimeFilter('today')"><span data-i18n="history.filters.buttons.today">Today</span></button>
+            <button class="filter-btn" onclick="setTimeFilter('week')"><span data-i18n="history.filters.buttons.week">This Week</span></button>
+            <button class="filter-btn" onclick="setTimeFilter('month')"><span data-i18n="history.filters.buttons.month">This Month</span></button>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label"><span data-i18n="history.filters.eventType">🎯 Event Type</span></label>
+          <div class="filter-buttons">
+            <button class="filter-btn active" onclick="setEventFilter('all')"><span data-i18n="history.filters.buttons.allEvents">All Events</span></button>
+            <button class="filter-btn" onclick="setEventFilter('taken')"><span data-i18n="history.filters.buttons.taken">Taken</span></button>
+            <button class="filter-btn" onclick="setEventFilter('missed')"><span data-i18n="history.filters.buttons.missed">Missed</span></button>
+            <button class="filter-btn" onclick="setEventFilter('dispensed')"><span data-i18n="history.filters.buttons.dispensed">Dispensed</span></button>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <!-- Fix labels association and input attributes -->
+          <label class="filter-label" for="fromDate"><span data-i18n="history.filters.fromDate">📅 From Date</span></label>
+          <input type="date" id="fromDate" onchange="applyDateFilter()" data-i18n-placeholder="history.filters.fromDate" title="📅 From Date">
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label" for="toDate"><span data-i18n="history.filters.toDate">📅 To Date</span></label>
+          <input type="date" id="toDate" onchange="applyDateFilter()" data-i18n-placeholder="history.filters.toDate" title="📅 To Date">
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats-grid">
+      <div class="stat-card stat-total">
+        <div class="stat-number" id="totalEvents">-</div>
+        <div class="stat-label"><span data-i18n="history.stats.totalEvents">Total Events</span></div>
+      </div>
+      <div class="stat-card stat-taken">
+        <div class="stat-number" id="takenCount">-</div>
+        <div class="stat-label"><span data-i18n="history.stats.medicinesTaken">Medicines Taken</span></div>
+      </div>
+      <div class="stat-card stat-missed">
+        <div class="stat-number" id="missedCount">-</div>
+        <div class="stat-label"><span data-i18n="history.stats.dosesMissed">Doses Missed</span></div>
+      </div>
+      <div class="stat-card stat-dispensed">
+        <div class="stat-number" id="dispensedCount">-</div>
+        <div class="stat-label"><span data-i18n="history.stats.autoDispensed">Auto Dispensed</span></div>
+      </div>
+    </div>
+
+    <!-- History Table -->
+    <div class="history-section">
+      <div class="history-header">
+        <h3 class="history-title"><span data-i18n="history.table.title">Complete History</span></h3>
+        <button class="export-btn" onclick="exportHistory()"><span data-i18n="history.table.exportCsv">📥 Export CSV</span></button>
+      </div>
+
+      <div class="table-container">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th><span data-i18n="history.table.headers.datetime">📅 Date & Time</span></th>
+              <th><span data-i18n="history.table.headers.event">📊 Event</span></th>
+              <th class="hide-mobile"><span data-i18n="history.table.headers.medicine">💊 Medicine</span></th>
+              <th class="hide-mobile"><span data-i18n="history.table.headers.drum">🥁 Drum</span></th>
+              <th class="hide-mobile"><span data-i18n="history.table.headers.slot">🎯 Slot</span></th>
+              <th><span data-i18n="history.table.headers.details">📝 Details</span></th>
+            </tr>
+          </thead>
+          <tbody id="historyTableBody">
+            <!-- Table content will be populated by JavaScript -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loadingState" class="loading-state">
+        <div class="loading-spinner"></div>
+        <div><span data-i18n="history.loading.loadingData">Loading history data...</span></div>
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="empty-state" style="display: none;">
+        <div class="icon-large">📭</div>
+        <div><span data-i18n="history.empty.title">No history records found</span></div>
+        <div class="text-muted">
+          <span data-i18n="history.empty.subtitle">History will appear here once the dispenser starts operating.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./script.js"></script>
+  <script>
+    // Global state
+    let historyData = [];
+    let filteredData = [];
+    let currentTimeFilter = 'all';
+    let currentEventFilter = 'all';
+
+    // Page-specific i18n hook: called from applyLanguage in script.js
+    window.onLanguageChanged = function(lang) {
+      try {
+        updateTable();
+        updateStatistics();
+      } catch (_) {}
+    };
+
+    // --- Data Fetching ---
+    async function loadHistoryData() {
+      const loadingState = document.getElementById('loadingState');
+      const emptyState = document.getElementById('emptyState');
+      
+      if (historyData.length === 0) {
+        loadingState.style.display = 'block';
+        emptyState.style.display = 'none';
+        document.getElementById('historyTableBody').innerHTML = '';
+      }
+
+      try {
+        const response = await fetch('/api/history');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        historyData = await response.json();
+
+      } catch (error) {
+        console.error('Error fetching history data:', error);
+        
+        // For testing purposes, use mock data when API is not available
+        if (error.message.includes('404') || error.message.includes('Failed to fetch')) {
+          console.log('Using mock data for testing...');
+          historyData = [
+            {
+              timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 minutes ago
+              event: "TAKEN",
+              medicine: "Vitamin D",
+              drum: 1,
+              slot: 3,
+              details: ""
+            },
+            {
+              timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
+              event: "DISPENSED",
+              medicine: "Vitamin C",
+              drum: 2,
+              slot: 1,
+              details: ""
+            },
+            {
+              timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(), // 4 hours ago
+              event: "MISSED",
+              medicine: "Calcium",
+              drum: 1,
+              slot: 2,
+              details: ""
+            },
+            {
+              timestamp: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(), // 6 hours ago
+              event: "TAKEN",
+              medicine: "Iron",
+              drum: 3,
+              slot: 1,
+              details: ""
+            },
+            {
+              timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
+              event: "DISPENSED",
+              medicine: "Magnesium",
+              drum: 2,
+              slot: 3,
+              details: ""
+            }
+          ];
+        } else {
+          loadingState.style.display = 'none';
+          emptyState.style.display = 'block';
+          const dict = (i18n[currentLang] && i18n[currentLang].history) || i18n.en.history;
+          emptyState.innerHTML = `
+            <div class="icon-large">🔌</div>
+            <div>${dict.error.loadFailedTitle}</div>
+            <div class="text-muted">
+              ${dict.error.loadFailedSubtitle}
+            </div>
+          `;
+          historyData = [];
+        }
+      }
+      
+      historyData.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      applyFilters();
+    }
+
+    // --- Filtering Logic ---
+    function setTimeFilter(filter) {
+      currentTimeFilter = filter;
+      document.querySelectorAll('.filter-btn[onclick^="setTimeFilter"]').forEach(btn => {
+        btn.classList.toggle('active', btn.onclick.toString().includes(`'${filter}'`));
+      });
+      applyFilters();
+    }
+
+    function setEventFilter(filter) {
+      currentEventFilter = filter;
+      document.querySelectorAll('.filter-btn[onclick^="setEventFilter"]').forEach(btn => {
+        btn.classList.toggle('active', btn.onclick.toString().includes(`'${filter}'`));
+      });
+      applyFilters();
+    }
+
+    function applyDateFilter() {
+      // When using date pickers, deactivate the preset time filters
+      currentTimeFilter = 'custom';
+      document.querySelectorAll('.filter-btn[onclick^="setTimeFilter"]').forEach(btn => btn.classList.remove('active'));
+      applyFilters();
+    }
+
+    function applyFilters() {
+      filteredData = historyData.filter(item => {
+        const itemDate = new Date(item.timestamp);
+        const now = new Date();
+        
+        let timeMatch = true;
+        if (currentTimeFilter !== 'custom') {
+            document.getElementById('fromDate').value = '';
+            document.getElementById('toDate').value = '';
+            switch(currentTimeFilter) {
+              case 'today':
+                timeMatch = itemDate.toDateString() === now.toDateString();
+                break;
+              case 'week':
+                const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                timeMatch = itemDate >= weekAgo;
+                break;
+              case 'month':
+                const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+                timeMatch = itemDate >= monthAgo;
+                break;
+            }
+        }
+
+        const fromDate = document.getElementById('fromDate').value;
+        const toDate = document.getElementById('toDate').value;
+        
+        if (fromDate) {
+          const from = new Date(fromDate);
+          from.setHours(0, 0, 0, 0);
+          timeMatch = timeMatch && itemDate >= from;
+        }
+        
+        if (toDate) {
+          const to = new Date(toDate);
+          to.setHours(23, 59, 59, 999);
+          timeMatch = timeMatch && itemDate <= to;
+        }
+
+        let eventMatch = true;
+        if (currentEventFilter !== 'all') {
+          eventMatch = item.event.toLowerCase() === currentEventFilter;
+        }
+
+        return timeMatch && eventMatch;
+      });
+      
+      updateTable();
+      updateStatistics();
+    }
+
+    // --- UI Updates ---
+    function updateTable() {
+      const tbody = document.getElementById('historyTableBody');
+      const loadingState = document.getElementById('loadingState');
+      const emptyState = document.getElementById('emptyState');
+      const dict = (i18n[currentLang] && i18n[currentLang].history) || i18n.en.history;
+
+      loadingState.style.display = 'none';
+
+      if (filteredData.length === 0) {
+        tbody.innerHTML = '';
+        emptyState.style.display = 'block';
+        if (historyData.length > 0) {
+            emptyState.innerHTML = `
+                <div class="icon-large">🔍</div>
+                <div>${dict.empty.noMatch}</div>
+            `;
+        } else {
+            emptyState.innerHTML = `
+                <div class="icon-large">📭</div>
+                <div>${dict.empty.title}</div>
+                <div class="text-muted">
+                  ${dict.empty.subtitle}
+                </div>
+            `;
+        }
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      tbody.innerHTML = '';
+      
+      filteredData.forEach(item => {
+        const row = document.createElement('tr');
+
+        let eventClass = 'event-other';
+        const eventLower = String(item.event || '').toLowerCase();
+        if (eventLower === 'taken') eventClass = 'event-taken';
+        else if (eventLower === 'missed') eventClass = 'event-missed';
+        else if (eventLower === 'dispensed') eventClass = 'event-dispensed';
+
+        const formattedDate = new Date(item.timestamp).toLocaleString();
+
+        const tdDate = document.createElement('td');
+        tdDate.textContent = formattedDate;
+        row.appendChild(tdDate);
+
+        const tdEvent = document.createElement('td');
+        const badge = document.createElement('span');
+        badge.className = `event-badge ${eventClass}`;
+        const eventLabelMap = {
+          taken: dict.filters.buttons.taken,
+          missed: dict.filters.buttons.missed,
+          dispensed: dict.filters.buttons.dispensed
+        };
+        badge.textContent = eventLabelMap[eventLower] || (item.event || '');
+        tdEvent.appendChild(badge);
+        row.appendChild(tdEvent);
+
+        const tdMed = document.createElement('td');
+        tdMed.className = 'hide-mobile';
+        tdMed.textContent = item.medicine || '-';
+        row.appendChild(tdMed);
+
+        const tdDrum = document.createElement('td');
+        tdDrum.className = 'hide-mobile';
+        tdDrum.textContent = item.drum !== '-' && item.drum != null ? `${dict.table.drumPrefix} ${item.drum}` : '-';
+        row.appendChild(tdDrum);
+
+        const tdSlot = document.createElement('td');
+        tdSlot.className = 'hide-mobile';
+        tdSlot.textContent = item.slot !== '-' && item.slot != null ? `${dict.table.slotPrefix} ${item.slot}` : '-';
+        row.appendChild(tdSlot);
+
+        const tdDetails = document.createElement('td');
+        tdDetails.textContent = item.details || '';
+        row.appendChild(tdDetails);
+
+        tbody.appendChild(row);
+      });
+    }
+
+    function updateStatistics() {
+      const total = filteredData.length;
+      const taken = filteredData.filter(item => item.event.toLowerCase() === 'taken').length;
+      const missed = filteredData.filter(item => item.event.toLowerCase() === 'missed').length;
+      const dispensed = filteredData.filter(item => item.event.toLowerCase() === 'dispensed').length;
+      
+      document.getElementById('totalEvents').textContent = total;
+      document.getElementById('takenCount').textContent = taken;
+      document.getElementById('missedCount').textContent = missed;
+      document.getElementById('dispensedCount').textContent = dispensed;
+    }
+
+    // --- Actions ---
+    function exportHistory() {
+      const dict = (i18n[currentLang] && i18n[currentLang].history) || i18n.en.history;
+      if (filteredData.length === 0) {
+        alert(dict.error.noDataToExport);
+        return;
+      }
+
+      // Create CSV content
+      const headers = [
+        dict.table.headers.datetime,
+        dict.table.headers.event,
+        dict.table.headers.medicine,
+        dict.table.headers.drum,
+        dict.table.headers.slot,
+        dict.table.headers.details
+      ];
+      const csvContent = [
+        headers.join(','),
+        ...filteredData.map(item => [
+          `"${new Date(item.timestamp).toLocaleString()}"`,
+          `"${item.event}"`,
+          `"${item.medicine}"`,
+          `"${item.drum}"`,
+          `"${item.slot}"`,
+          `"${String(item.details || '').replace(/"/g, '""')}"`
+        ].join(','))
+      ].join('\n');
+
+      // Download CSV
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `medicine_history_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    }
+
+    // --- Initialization ---
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize i18n and RTL based on saved language
+      try {
+        applyLanguage(localStorage.getItem('ui_lang') || 'en');
+      } catch (e) {
+        console.warn('applyLanguage not available yet:', e);
+      }
+
+      // Set default date for 'To' date picker
+      const today = new Date();
+      document.getElementById('toDate').value = today.toISOString().split('T')[0];
+      
+      loadHistoryData();
+    });
+
+    // Auto-refresh every 30 seconds
+    setInterval(loadHistoryData, 30000);
+  </script>
+</body>
+</html>
